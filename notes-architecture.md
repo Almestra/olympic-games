@@ -1,4 +1,4 @@
-# Audit du starter Olympic Games
+# Notes d'architecture — Olympic Games
 
 ## Sommaire
 1. [Résumé rapide](#1-résumé-rapide)
@@ -7,6 +7,7 @@
 4. [Écarts avec le cahier des charges](#4-écarts-avec-le-cahier-des-charges)
 5. [Limites du projet](#5-limites-du-projet)
 6. [Priorités](#6-priorités)
+7. [Architecture proposée](#7-architecture-proposée)
 
 ## 1. Résumé rapide
 
@@ -80,7 +81,7 @@ Les problèmes de gravité haute sont expliqués sous chaque tableau.
 | **DATA-05** — Aucun tri des pays : ils suivent l'ordre du fichier JSON | `home.component.ts` l. 27-31 | 🟡 |
 
 **À noter :**
-- **DATA-01** : le cahier des charges impose de vérifier que le pays existe. Afficher « 0 médaille » laisse croire que le pays existe mais n'a rien gagné, ce qui est faux. 
+- **DATA-01** : le cahier des charges impose de vérifier que le pays existe. Afficher « 0 médaille » laisse croire que le pays existe mais n'a rien gagné, ce qui est faux.
 - **DATA-02** : le cahier des charges précise clairement `/country/:id`. De plus, un nom est fragile (espaces encodés, majuscules, renommage), alors qu'un identifiant est stable et unique.
 - **DATA-03** : le cahier des charges impose l'usage de ces trois états. Avec une vraie API (lenteur, panne), l'utilisateur verrait des indicateurs à 0 et aucun graphique, sans explication.
 - **DATA-04** : la mémoire occupée augmente à chaque navigation, ce qui ralentit l'application, surtout sur mobile.
@@ -168,8 +169,97 @@ Les problèmes de gravité haute sont expliqués sous chaque tableau.
 
 ## 6. Priorités
 
-1. **Fondations** : interfaces et `DataService` (TS-01, ARCH-01, ARCH-02).
-2. **Bugs et écarts majeurs** : identifiant dans l'URL, pays inexistant, états loading / empty / error, destruction des graphiques (DATA-01 à DATA-04).
-3. **Composants réutilisables** : `HeaderComponent`, composant de graphique (ARCH-03).
-4. **Responsive et accessibilité** (UI, A11Y).
-5. **Nettoyage et documentation** : constantes, code mort, README, `ARCHITECTURE.md` (CLEAN, TOOL-03).
+1. **Fondations** : interfaces et `DataService` (**TS-01**, **ARCH-01**, **ARCH-02**).
+2. **Bugs et écarts majeurs** : identifiant dans l'URL, pays inexistant, états loading / empty / error, destruction des graphiques (**DATA-01** à **DATA-04**).
+3. **Composants réutilisables** : `HeaderComponent`, composant de graphique (**ARCH-03**).
+4. **Responsive et accessibilité** (**UI**, **A11Y**).
+5. **Nettoyage et documentation** : constantes, code mort, README, `ARCHITECTURE.md` (**CLEAN**, **TOOL-03**).
+
+## 7. Architecture proposée
+
+Cette architecture répond aux problèmes de structure relevés plus haut ; le nettoyage et l'outillage se traitent à l'implémentation.
+
+### 7.1 Arborescence
+
+```text
+src/
+├── app/
+│   ├── components/
+│   │   ├── chart/                   graphique Chart.js (bar ou line)
+│   │   ├── header/                  titre de page et indicateurs
+│   │   ├── page-status/             chargement, absence de données, erreur
+│   │   └── top-bar/                 nom de l'application
+│   ├── models/
+│   │   ├── chart-item.model.ts      élément de graphique (identifiant, libellé, valeur)
+│   │   ├── indicator.model.ts       indicateur (libellé, valeur)
+│   │   ├── olympic.model.ts         pays et ses participations
+│   │   ├── page-state.model.ts      'loading' | 'empty' | 'error' | 'loaded'
+│   │   └── participation.model.ts   participation à une édition
+│   ├── pages/
+│   │   ├── country-detail-page/     /country/:id
+│   │   ├── dashboard-page/          /
+│   │   └── not-found-page/          /not-found et routes inconnues
+│   ├── services/
+│   │   └── data.service.ts          unique point d'accès aux données
+│   ├── app.component.ts             composant racine : barre supérieure, <main> et <router-outlet>
+│   ├── app.config.ts                fournisseurs : routeur et HttpClient
+│   └── app.routes.ts                table des routes
+├── assets/
+│   └── mock/
+│       └── olympic.json             réponse simulée de l'API
+├── environments/                    adresse des données
+├── styles/
+│   └── _variables.scss              couleurs et points de rupture
+├── main.ts                          démarrage avec bootstrapApplication
+└── styles.scss                      fondations globales
+```
+
+Les dossiers absents `components/`, `models/` et `services/` sont ajoutés (**ARCH-04**).
+
+### 7.2 Patterns retenus
+
+- **Séparation Composant / Service.** Le service récupère et calcule, les composants affichent (**ARCH-01**, **ARCH-02**).
+- **Composants Conteneur / Présentation.** Les pages (`pages/`), qui jouent le rôle de conteneurs, injectent le service, préparent les données d'affichage et gèrent la navigation. Les composants de présentation (`components/`) reçoivent tout par `@Input`, signalent les actions par `@Output`, et n'injectent aucun service : ils sont réutilisables peu importe la page (**ARCH-03**). Les pages s'abonnent aux données avec le pipe `async` plutôt qu'avec des `subscribe()` manuels : les souscriptions se ferment seules (**RX-02**), la signature dépréciée disparaît avec eux (**RX-03**), et aucune propriété n'a besoin d'un `!` en attendant la réponse (**TS-03**). L'opérateur `switchMap` relance la recherche quand l'identifiant change dans l'URL (**RX-01**).
+- **Singleton pour le service.** Avec `@Injectable({ providedIn: 'root' })`, Angular n'en crée qu'une seule instance pour toute l'application : un seul cache et un seul ordre de tri, quelle que soit la page (**RX-04**, **DATA-05**). Garde-fou : le service n'expose ses données qu'en lecture, pour ne pas devenir une variable globale modifiable de partout.
+
+### 7.3 Rôle des éléments
+
+| Élément | Rôle |
+|---|---|
+| `DataService` (service) | Charge le JSON à la place des composants (**ARCH-01**), une seule fois grâce au cache (**RX-04**), trie les pays par total décroissant (**DATA-05**), retrouve un pays par son identifiant, calcule les indicateurs et la période couverte par les données (**ARCH-02**) |
+| `DashboardPageComponent` (page) | Affiche le texte introductif dont la période vient des données, l'en-tête et les barres, dont le clic ouvre `/country/:id` (**DATA-02**) |
+| `CountryDetailPageComponent` (page) | Lit l'identifiant dans l'URL et recharge le pays quand il change (**RX-01**), redirige vers la page not-found sans changer l'URL affichée si l'identifiant est invalide ou inconnu (**DATA-01**), sinon affiche l'en-tête, la courbe et le bouton de retour (**UI-06**) |
+| `NotFoundPageComponent` (page) | Affiche le message d'erreur, pour les routes inconnues comme pour les pays introuvables, sans dépasser de l'écran (**UI-04**) |
+| `TopBarComponent` (présentation) | Affiche le nom de l'application sur toutes les pages, depuis `AppComponent` |
+| `HeaderComponent` (présentation) | Affiche le titre de la page et les indicateurs, chacun avec son libellé et sa valeur, sur les deux pages (**ARCH-03**). Les indicateurs passent à la ligne sur petit écran (**UI-03**) |
+| `ChartComponent` (présentation) | Crée le graphique des deux pages (**ARCH-03**), le met à jour, le détruit (**DATA-04**), l'adapte à la largeur disponible (**UI-01**), nomme ses axes sans légende inutile (**UI-05**), le décrit pour les lecteurs d'écran (**A11Y-01**) et signale le clic |
+| `PageStatusComponent` (présentation) | Affiche le chargement, l'absence de données ou une erreur (**DATA-03**), avec un lien de retour facultatif |
+| `Olympic`, `Participation` (modèles) | Décrivent la forme des données du JSON (**TS-01**) |
+| `Indicator`, `ChartItem`, `PageState` (modèles) | Décrivent les données d'affichage et l'état de la page (**DATA-03**). `ChartItem` stocke sa valeur sous forme de nombre (**TS-02**) et porte un identifiant : au clic sur une barre, le graphique renvoie l'identifiant du pays plutôt qu'une position |
+
+**Traités de manière transverse :**
+- **A11Y-02** : une palette commune dans `styles/_variables.scss`, contrastée pour le texte comme pour les graphiques ; aucune information ne repose sur la seule couleur.
+- **A11Y-03** : `<main>` dans `AppComponent`, un seul `<h1>` par page en tête du contenu, le nom de l'application hors de la hiérarchie des titres.
+- **UI-02** : grille de 4, 8 puis 12 colonnes, avec les points de rupture à 768 et 1200 px définis dans `styles/_variables.scss`.
+
+### 7.4 Intégration d'un back-end
+
+- **Seuls `environments/` et `DataService` changent** : l'adresse pointe vers l'API, et la recherche d'un pays passe par une requête dédiée, du type `GET /olympics/:id`.
+- **Les modèles servent de contrat** : ils décrivent la forme des réponses attendues.
+
+### 7.5 Correspondance avec le starter
+
+| Starter | Nouvelle architecture | Ce qui change |
+|---|---|---|
+| `app.module.ts` | `app.config.ts` | Plus de module, seulement les fournisseurs (**ARCH-05**) |
+| `app-routing.module.ts` | `app.routes.ts` | Route `country/:id`, ajout de `not-found` |
+| `pages/home/` | `pages/dashboard-page/` | Ne garde que l'orchestration |
+| `pages/country/` | `pages/country-detail-page/` | Idem, avec la gestion du pays introuvable |
+| `pages/not-found/` | `pages/not-found-page/` | Réutilise `PageStatusComponent` |
+| Appels HTTP et calculs des pages | `services/data.service.ts` | Centralisés dans le service |
+| `any` | `models/*.model.ts` | Interfaces TypeScript |
+| Titre `<h2>` « Olympic games app » du dashboard | `components/top-bar/` | Affiché sur toutes les pages, en texte simple |
+| Bloc titre et indicateurs dupliqué | `components/header/` | Un composant réutilisable |
+| Code Chart.js des pages | `components/chart/` | Un composant réutilisable |
+| Styles des pages dans `styles.scss` | `.scss` des composants et `styles/_variables.scss` | Styles rangés avec leur composant |
+| `assets/images/teleSport.png` | supprimé | Image jamais affichée |
