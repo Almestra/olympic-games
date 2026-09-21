@@ -1,4 +1,41 @@
-/* You can add global styles to this file, and also import other style files */
+@use 'variables' as *;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  color: $color-text;
+  background-color: $color-background;
+}
+
+:focus-visible {
+  outline: 3px solid $color-primary;
+  outline-offset: 2px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: $grid-gap;
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: 0 $grid-gap;
+
+  @media (min-width: $breakpoint-tablet) {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+
+  @media (min-width: $breakpoint-desktop) {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+}
+
 .heading {
     flex-direction: column;
 }
@@ -41,4 +78,3 @@
         }
     }
 }
-
