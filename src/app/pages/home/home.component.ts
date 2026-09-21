@@ -3,9 +3,13 @@ import {Component, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 import Chart from 'chart.js/auto';
 
+import { HeaderComponent } from '../../components/header/header.component';
+import { Indicator } from '../../models/indicator.model';
+
 @Component({
   selector: 'app-home',
   standalone: true,
+  imports: [HeaderComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
@@ -16,6 +20,7 @@ export class HomeComponent implements OnInit {
   public totalJOs: number = 0
   public error!:string
   titlePage: string = "Medals per Country";
+  public indicators: Indicator[] = [];
 
   constructor(private router: Router, private http:HttpClient) { }
 
@@ -27,6 +32,10 @@ export class HomeComponent implements OnInit {
           this.totalJOs = Array.from(new Set(data.map((i: any) => i.participations.map((f: any) => f.year)).flat())).length;
           const countries: string[] = data.map((i: any) => i.country);
           this.totalCountries = countries.length;
+          this.indicators = [
+            { label: 'Number of countries', value: this.totalCountries },
+            { label: 'Number of JOs', value: this.totalJOs },
+          ];
           const medals = data.map((i: any) => i.participations.map((i: any) => (i.medalsCount)));
           const sumOfAllMedalsYears = medals.map((i) => i.reduce((acc: any, i: any) => acc + i, 0));
           this.buildPieChart(countries, sumOfAllMedalsYears);

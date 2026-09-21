@@ -3,11 +3,13 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, ParamMap, Router, RouterLink} from '@angular/router';
 import Chart from 'chart.js/auto';
 
+import { HeaderComponent } from '../../components/header/header.component';
+import { Indicator } from '../../models/indicator.model';
 
 @Component({
   selector: 'app-country',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, HeaderComponent],
   templateUrl: './country.component.html',
   styleUrls: ['./country.component.scss']
 })
@@ -19,6 +21,7 @@ export class CountryComponent implements OnInit {
   public totalMedals: number = 0;
   public totalAthletes: number = 0;
   public error!: string;
+  public indicators: Indicator[] = [];
 
   constructor(private route: ActivatedRoute, private router: Router, private http: HttpClient) {
   }
@@ -38,6 +41,11 @@ export class CountryComponent implements OnInit {
           this.totalMedals = medals.reduce((accumulator: any, item: any) => accumulator + parseInt(item), 0);
           const nbAthletes = selectedCountry?.participations.map((i: any) => i.athleteCount.toString()) ?? []
           this.totalAthletes = nbAthletes.reduce((accumulator: any, item: any) => accumulator + parseInt(item), 0);
+          this.indicators = [
+            { label: 'Number of entries', value: this.totalEntries },
+            { label: 'Total Number of medals', value: this.totalMedals },
+            { label: 'Total Number of athletes', value: this.totalAthletes },
+          ];
           this.buildChart(years, medals);
         }
       },

@@ -1,0 +1,40 @@
+@use 'variables' as *;
+
+:host {
+  display: block;
+  text-align: center;
+}
+
+.title {
+  display: inline-block;
+  margin: 0 0 $grid-gap;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 1.5rem;
+  color: $color-background;
+  background-color: $color-primary;
+}
+
+.indicators {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $grid-gap;
+  margin: 0;
+}
+
+.indicator {
+  flex: 0 1 10rem;
+  padding: 8px 16px;
+  border: 1px solid $color-primary;
+  border-radius: 8px;
+}
+
+.label {
+  color: $color-text-muted;
+}
+
+.value {
+  margin: 0;
+  font-weight: bold;
+}

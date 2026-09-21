@@ -1,0 +1,9 @@
+<h1 class="title">{{ title }}</h1>
+<dl class="indicators">
+  @for (indicator of indicators; track indicator.label) {
+    <div class="indicator">
+      <dt class="label">{{ indicator.label }}</dt>
+      <dd class="value">{{ indicator.value | number }}</dd>
+    </div>
+  }
+</dl>
