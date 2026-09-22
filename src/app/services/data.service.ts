@@ -4,6 +4,7 @@ import { Observable, map, shareReplay } from 'rxjs';
 
 import { environment } from '../../environments/environment';
 import { Olympic } from '../models/olympic.model';
+import { Period } from '../models/period.model';
 
 @Injectable({
   providedIn: 'root'
@@ -40,7 +41,7 @@ export class DataService {
     return new Set(this.getYears(olympics)).size;
   }
 
-  getPeriod(olympics: Olympic[]): { start: number; end: number } | undefined {
+  getPeriod(olympics: Olympic[]): Period | undefined {
     const years = this.getYears(olympics);
     if (years.length === 0) {
       return undefined;

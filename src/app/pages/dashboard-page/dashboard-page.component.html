@@ -2,6 +2,10 @@
   @if (view.state === 'loaded') {
     <div class="grid">
       <app-header [title]="title" [indicators]="view.indicators" />
+      <p class="intro grid-main">
+        Summer Olympic Games from {{ view.period.start }} to {{ view.period.end }}.
+        Click a country's bar to see its details.
+      </p>
       <app-chart class="grid-main" type="bar" multicolor [items]="view.chartItems" description="Total medals per country"
         (itemClick)="openCountry($event)" />
     </div>

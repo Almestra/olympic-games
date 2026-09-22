@@ -9,11 +9,12 @@ import { PageStatusComponent } from '../../components/page-status/page-status.co
 import { ChartItem } from '../../models/chart-item.model';
 import { Indicator } from '../../models/indicator.model';
 import { Olympic } from '../../models/olympic.model';
+import { Period } from '../../models/period.model';
 import { DataService } from '../../services/data.service';
 
 type DashboardView =
   | { state: 'loading' | 'empty' | 'error' }
-  | { state: 'loaded'; indicators: Indicator[]; chartItems: ChartItem[] };
+  | { state: 'loaded'; period: Period; indicators: Indicator[]; chartItems: ChartItem[] };
 
 @Component({
   selector: 'app-dashboard-page',
@@ -40,11 +41,13 @@ export class DashboardPageComponent {
   }
 
   private toView(olympics: Olympic[]): DashboardView {
-    if (olympics.length === 0) {
+    const period = this.dataService.getPeriod(olympics);
+    if (!period) {
       return { state: 'empty' };
     }
     return {
       state: 'loaded',
+      period,
       indicators: [
         { label: 'Number of countries', value: olympics.length },
         { label: 'Number of JOs', value: this.dataService.countGames(olympics) }
