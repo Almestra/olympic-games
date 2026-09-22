@@ -9,11 +9,12 @@ import { PageStatusComponent } from '../../components/page-status/page-status.co
 import { ChartItem } from '../../models/chart-item.model';
 import { Indicator } from '../../models/indicator.model';
 import { Olympic } from '../../models/olympic.model';
+import { PageState } from '../../models/page-state.model';
 import { Period } from '../../models/period.model';
 import { DataService } from '../../services/data.service';
 
 type DashboardView =
-  | { state: 'loading' | 'empty' | 'error' }
+  | { state: Exclude<PageState, 'loaded'> }
   | { state: 'loaded'; period: Period; indicators: Indicator[]; chartItems: ChartItem[] };
 
 @Component({
