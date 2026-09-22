@@ -14,8 +14,7 @@ const MESSAGES: Record<Status, string> = {
   selector: 'app-page-status',
   standalone: true,
   imports: [],
-  templateUrl: './page-status.component.html',
-  styleUrl: './page-status.component.scss'
+  templateUrl: './page-status.component.html'
 })
 export class PageStatusComponent {
   @Input({ required: true }) state: Status = 'loading';
