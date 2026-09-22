@@ -1,0 +1,13 @@
+@use 'variables' as *;
+
+.top-bar {
+  border-bottom: 1px solid $color-primary;
+}
+
+.name {
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $grid-gap;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
