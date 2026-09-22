@@ -36,6 +36,25 @@ body {
   }
 }
 
+.button {
+  display: inline-block;
+  padding: 8px 16px;
+  border: 1px solid $color-primary;
+  border-radius: 8px;
+  color: $color-background;
+  background-color: $color-primary;
+  text-decoration: none;
+
+  &:hover {
+    color: $color-primary;
+    background-color: $color-background;
+  }
+}
+
+app-page-status {
+  display: block;
+}
+
 .page-status {
   display: flex;
   flex-direction: column;
@@ -48,7 +67,7 @@ body {
   }
 }
 
-// Placeholder shown by index.html until Angular starts
+// Centered on the screen, so the spinner stays in place when Angular starts
 .page-status.is-loading {
   position: fixed;
   inset: 0;

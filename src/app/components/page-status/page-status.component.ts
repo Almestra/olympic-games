@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { booleanAttribute, Component, Input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { PageState } from '../../models/page-state.model';
 
@@ -13,13 +14,15 @@ const MESSAGES: Record<Status, string> = {
 @Component({
   selector: 'app-page-status',
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './page-status.component.html'
 })
 export class PageStatusComponent {
   @Input({ required: true }) state: Status = 'loading';
+  @Input() message = '';
+  @Input({ transform: booleanAttribute }) backLink = false;
 
-  get message(): string {
-    return MESSAGES[this.state];
+  get text(): string {
+    return this.message || MESSAGES[this.state];
   }
 }

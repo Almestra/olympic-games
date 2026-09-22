@@ -12,5 +12,5 @@ import { Indicator } from '../../models/indicator.model';
 })
 export class HeaderComponent {
   @Input({ required: true }) title = '';
-  @Input({ required: true }) indicators: Indicator[] = [];
+  @Input() indicators: Indicator[] = [];
 }

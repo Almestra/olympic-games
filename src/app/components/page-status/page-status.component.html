@@ -2,5 +2,8 @@
   @if (state === 'loading') {
     <span class="spinner" aria-hidden="true"></span>
   }
-  <p>{{ message }}</p>
+  <p>{{ text }}</p>
+  @if (backLink && state !== 'loading') {
+    <a class="button" routerLink="/">Back to dashboard</a>
+  }
 </div>
