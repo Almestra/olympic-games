@@ -1,0 +1,5 @@
+@use 'variables' as *;
+
+.content {
+  padding: $grid-gap * 2 0;
+}
