@@ -30,7 +30,7 @@ import { ChartItem } from '../../models/chart-item.model';
 // Same values as $color-primary and $color-text in src/styles/_variables.scss
 const CHART_COLOR = '#0a7a82';
 const CHART_TEXT_COLOR = '#1f1f1f';
-const CHART_PALETTE = [CHART_COLOR, '#6b86b3', '#7a3c53', '#8f6263', '#c06200', '#94819d'];
+const CHART_PALETTE = ['#6b86b3', '#7a3c53', '#c06200', '#8f6263', '#94819d'];
 const LABEL_OFFSET = { x: 6, y: 2 };
 
 const barLabels: Plugin<'bar' | 'line'> = {
