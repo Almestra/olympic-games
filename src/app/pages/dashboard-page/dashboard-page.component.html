@@ -1,0 +1,11 @@
+@if (view$ | async; as view) {
+  @if (view.state === 'loaded') {
+    <div class="grid">
+      <app-header [title]="title" [indicators]="view.indicators" />
+      <app-chart class="grid-main" type="bar" multicolor [items]="view.chartItems" description="Total medals per country"
+        (itemClick)="openCountry($event)" />
+    </div>
+  } @else {
+    <app-page-status [state]="view.state" />
+  }
+}

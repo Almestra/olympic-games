@@ -36,6 +36,19 @@ body {
   }
 }
 
+// Main column of a page: 4 of 4 columns, then 6 of 8, then 8 of 12
+.grid-main {
+  grid-column: 1 / -1;
+
+  @media (min-width: $breakpoint-tablet) {
+    grid-column: 2 / 8;
+  }
+
+  @media (min-width: $breakpoint-desktop) {
+    grid-column: 3 / 11;
+  }
+}
+
 .button {
   display: inline-block;
   padding: 8px 16px;
