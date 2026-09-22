@@ -1,0 +1,8 @@
+<figure class="figure">
+  @if (showDescription) {
+    <figcaption class="caption">{{ description }}</figcaption>
+  }
+  <div class="chart">
+    <canvas #canvas role="img" [attr.aria-label]="ariaLabel"></canvas>
+  </div>
+</figure>

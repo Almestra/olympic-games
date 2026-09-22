@@ -1,0 +1,6 @@
+@use 'variables' as *;
+
+app-chart {
+  max-width: 800px;
+  margin: $grid-gap * 2 auto 0;
+}

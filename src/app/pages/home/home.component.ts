@@ -1,21 +1,22 @@
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
-import Chart from 'chart.js/auto';
 
 import { HeaderComponent } from '../../components/header/header.component';
+import { ChartComponent } from '../../components/chart/chart.component';
 import { Indicator } from '../../models/indicator.model';
+import { ChartItem } from '../../models/chart-item.model';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [HeaderComponent],
+  imports: [HeaderComponent, ChartComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
   private olympicUrl = './assets/mock/olympic.json';
-  public pieChart!: Chart<"pie", number[], string>;
+  public chartItems: ChartItem[] = [];
   public totalCountries: number = 0
   public totalJOs: number = 0
   public error!:string
@@ -31,7 +32,6 @@ export class HomeComponent implements OnInit {
         if (data && data.length > 0) {
           this.totalJOs = Array.from(new Set(data.map((i: any) => i.participations.map((f: any) => f.year)).flat())).length;
           const countries: string[] = data.map((i: any) => i.country);
-          const ids: number[] = data.map((olympic) => olympic.id);
           this.totalCountries = countries.length;
           this.indicators = [
             { label: 'Number of countries', value: this.totalCountries },
@@ -39,7 +39,11 @@ export class HomeComponent implements OnInit {
           ];
           const medals = data.map((i: any) => i.participations.map((i: any) => (i.medalsCount)));
           const sumOfAllMedalsYears = medals.map((i) => i.reduce((acc: any, i: any) => acc + i, 0));
-          this.buildPieChart(countries, sumOfAllMedalsYears, ids);
+          this.chartItems = data.map((olympic, index) => ({
+            id: olympic.id,
+            label: olympic.country,
+            value: sumOfAllMedalsYears[index],
+          }));
         }
       },
       (error:HttpErrorResponse) => {
@@ -49,32 +53,8 @@ export class HomeComponent implements OnInit {
     )
   }
 
-  buildPieChart(countries: string[], sumOfAllMedalsYears: number[], ids: number[]) {
-    const pieChart = new Chart("DashboardPieChart", {
-      type: 'pie',
-      data: {
-        labels: countries,
-        datasets: [{
-          label: 'Medals',
-          data: sumOfAllMedalsYears,
-          backgroundColor: ['#0b868f', '#adc3de', '#7a3c53', '#8f6263', 'orange', '#94819d'],
-          hoverOffset: 4
-        }],
-      },
-      options: {
-        aspectRatio: 2.5,
-        onClick: (e) => {
-          if (e.native) {
-            const points = pieChart.getElementsAtEventForMode(e.native, 'point', { intersect: true }, true)
-            if (points.length) {
-              const firstPoint = points[0];
-              this.router.navigate(['country', ids[firstPoint.index]]);
-            }
-          }
-        }
-      }
-    });
-    this.pieChart = pieChart;
+  openCountry(id: number): void {
+    this.router.navigate(['country', id]);
   }
 }
 

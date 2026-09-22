@@ -1,6 +1,7 @@
 <h2>Olympic games app</h2>
-<hr/>
+<hr />
 <div>
   <app-header [title]="titlePage" [indicators]="indicators" />
-  <canvas id="DashboardPieChart">{{ pieChart }}</canvas>
+  <app-chart type="bar" multicolor [items]="chartItems" description="Total medals per country"
+    (itemClick)="openCountry($event)" />
 </div>

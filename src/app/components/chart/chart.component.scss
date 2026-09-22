@@ -1,0 +1,26 @@
+@use 'variables' as *;
+
+:host {
+  display: block;
+}
+
+.chart {
+  position: relative;
+  height: 320px;
+
+  @media (min-width: $breakpoint-tablet) {
+    height: 400px;
+  }
+}
+
+.figure {
+  margin: 0;
+}
+
+.caption {
+  margin-bottom: $grid-gap;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: $color-primary;
+  text-align: center;
+}

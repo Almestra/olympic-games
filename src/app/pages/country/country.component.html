@@ -2,8 +2,7 @@
   <app-header [title]="titlePage" [indicators]="indicators" />
   <div class="chart-container wrapper-container">
     <div class="container">
-      <canvas id="countryChart">{{ lineChart }}</canvas>
-      <h2>Date</h2>
+      <app-chart type="line" showDescription [items]="chartItems" description="Medals per edition" />
     </div>
   </div>
   <div class="center">
