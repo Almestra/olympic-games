@@ -16,15 +16,18 @@
 }
 
 .indicators {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
   gap: $grid-gap;
-  margin: 0;
+  width: fit-content;
+  margin: 0 auto;
+
+  @media (min-width: $breakpoint-tablet) {
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+  }
 }
 
 .indicator {
-  flex: 0 1 10rem;
   padding: 8px 16px;
   border: 1px solid $color-primary;
   border-radius: 8px;
