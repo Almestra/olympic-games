@@ -1,0 +1,21 @@
+@use 'variables' as *;
+
+.grid {
+  row-gap: $grid-gap * 2;
+}
+
+app-header,
+app-chart,
+.back {
+  grid-column: 1 / -1;
+}
+
+app-chart {
+  @media (min-width: $breakpoint-desktop) {
+    grid-column: 3 / 11;
+  }
+}
+
+.back {
+  justify-self: center;
+}

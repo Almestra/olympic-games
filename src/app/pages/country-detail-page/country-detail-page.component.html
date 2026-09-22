@@ -1,0 +1,11 @@
+@if (view$ | async; as view) {
+  @if (view.state === 'loaded') {
+    <div class="grid">
+      <app-header [title]="view.title" [indicators]="view.indicators" />
+      <app-chart type="line" showDescription [items]="view.chartItems" description="Medals per edition" />
+      <a class="button back" routerLink="/">Back to dashboard</a>
+    </div>
+  } @else {
+    <app-page-status [state]="view.state" backLink />
+  }
+}
