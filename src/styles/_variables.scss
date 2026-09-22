@@ -1,13 +1,13 @@
-// Couleurs : contrastes mesurés sur fond blanc (seuil AA : 4,5:1)
-$color-primary: #0a7a82; // 5,1:1
-$color-text: #1f1f1f; // 16,5:1
+// Colors: contrast ratios measured on a white background (AA threshold: 4.5:1)
+$color-primary: #0a7a82; // 5.1:1
+$color-text: #1f1f1f; // 16.5:1
 $color-text-muted: #595959; // 7:1
 $color-background: #ffffff;
 
-// Points de rupture
+// Breakpoints
 $breakpoint-tablet: 768px;
 $breakpoint-desktop: 1200px;
 
-// Grille
+// Grid
 $grid-gap: 16px;
 $content-max-width: 1200px;
