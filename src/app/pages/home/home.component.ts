@@ -4,17 +4,20 @@ import { Router } from '@angular/router';
 
 import { HeaderComponent } from '../../components/header/header.component';
 import { ChartComponent } from '../../components/chart/chart.component';
+import { PageStatusComponent } from '../../components/page-status/page-status.component';
 import { Indicator } from '../../models/indicator.model';
 import { ChartItem } from '../../models/chart-item.model';
+import { PageState } from '../../models/page-state.model';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [HeaderComponent, ChartComponent],
+  imports: [HeaderComponent, ChartComponent, PageStatusComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
+  public state: PageState = 'loading';
   private olympicUrl = './assets/mock/olympic.json';
   public chartItems: ChartItem[] = [];
   public totalCountries: number = 0
@@ -44,11 +47,15 @@ export class HomeComponent implements OnInit {
             label: olympic.country,
             value: sumOfAllMedalsYears[index],
           }));
+          this.state = 'loaded';
+        } else {
+          this.state = 'empty';
         }
       },
       (error:HttpErrorResponse) => {
         console.log(`erreur : ${error}`);
         this.error = error.message
+        this.state = 'error';
       }
     )
   }

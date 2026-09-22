@@ -1,5 +1,9 @@
-<div>
-  <app-header [title]="titlePage" [indicators]="indicators" />
-  <app-chart type="bar" multicolor [items]="chartItems" description="Total medals per country"
-    (itemClick)="openCountry($event)" />
-</div>
+@if (state === 'loaded') {
+  <div>
+    <app-header [title]="titlePage" [indicators]="indicators" />
+    <app-chart type="bar" multicolor [items]="chartItems" description="Total medals per country"
+      (itemClick)="openCountry($event)" />
+  </div>
+} @else {
+  <app-page-status [state]="state" />
+}
