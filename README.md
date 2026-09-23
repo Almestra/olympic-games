@@ -1,29 +1,44 @@
-# OlympicGamesStarter
+# Olympic Games
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.6.
+Dashboard of the medals won by country at the Summer Olympic Games, from 2012 to 2020. Built with Angular 18 and Chart.js.
 
-Don't forget to install your node_modules before starting (`npm install`).
+## Overview
 
-## Development server
+### Dashboard
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+![Dashboard](docs/screenshots/dashboard-desktop.png)
 
-## Build
+### Detail page
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+![Country detail](docs/screenshots/country-detail-desktop.png)
 
-## Where to start
+## Requirements
 
-As you can see, an architecture has already been defined for the project. It is just a suggestion, you can choose to use your own. The predefined architecture includes (in addition to the default angular architecture) the following:
+- Node.js 22
+- npm 10
 
-- `components` folder: contains every reusable components
-- `pages` folder: contains components used for routing
-- `core` folder: contains the business logic (`services` and `models` folders)
+## Installation
 
-I suggest you to start by understanding this starter code. Pay an extra attention to the `app-routing.module.ts` and the `olympic.service.ts`.
+```bash
+npm ci
+```
 
-Once mastered, you should continue by creating the typescript interfaces inside the `models` folder. As you can see I already created two files corresponding to the data included inside the `olympic.json`. With your interfaces, improve the code by replacing every `any` by the corresponding interface.
+`npm ci` installs the exact versions listed in `package-lock.json`, where `npm install` may update them.
 
-You're now ready to implement the requested features.
+## Commands
 
-Good luck!
+| Command | What it does |
+|---|---|
+| `npm start` | Development server on http://localhost:4200/, reloaded on every change |
+| `npm run build` | Production build, written to `dist/` |
+| `npm run lint` | ESLint on the TypeScript files and the templates |
+| `npm test` | Karma. The project has no test yet |
+
+## Data
+
+The application reads `src/assets/mock/olympic.json`, a mocked API answer. Its address lives in `src/environments/`: pointing the application to a real API changes that file and `DataService`, nothing else.
+
+## Documentation
+
+- [ARCHITECTURE.md](ARCHITECTURE.md): data flow, folder structure, decisions and known limits.
+- [notes-architecture.md](notes-architecture.md): the analysis of the starter code that led to them, in French.
