@@ -5,6 +5,7 @@ import { Observable, catchError, filter, map, of, startWith, switchMap, tap } fr
 
 import { ChartComponent } from '../../components/chart/chart.component';
 import { HeaderComponent } from '../../components/header/header.component';
+import { PageSkeletonComponent } from '../../components/page-skeleton/page-skeleton.component';
 import { PageStatusComponent } from '../../components/page-status/page-status.component';
 import { ChartItem } from '../../models/chart-item.model';
 import { Indicator } from '../../models/indicator.model';
@@ -19,7 +20,7 @@ type CountryDetailView =
 @Component({
   selector: 'app-country-detail-page',
   standalone: true,
-  imports: [AsyncPipe, RouterLink, HeaderComponent, ChartComponent, PageStatusComponent],
+  imports: [AsyncPipe, RouterLink, HeaderComponent, ChartComponent, PageSkeletonComponent, PageStatusComponent],
   templateUrl: './country-detail-page.component.html',
   styleUrl: './country-detail-page.component.scss'
 })

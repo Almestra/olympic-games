@@ -1,9 +1,6 @@
-<div class="page-status" [class.is-loading]="state === 'loading'" role="status">
-  @if (state === 'loading') {
-    <span class="spinner" aria-hidden="true"></span>
-  }
+<div class="page-status" role="status">
   <p>{{ text }}</p>
-  @if (backLink && state !== 'loading') {
+  @if (backLink) {
     <a class="button" routerLink="/">Back to dashboard</a>
   }
 </div>

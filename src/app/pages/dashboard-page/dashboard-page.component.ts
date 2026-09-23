@@ -5,6 +5,7 @@ import { Observable, catchError, map, of, startWith } from 'rxjs';
 
 import { ChartComponent } from '../../components/chart/chart.component';
 import { HeaderComponent } from '../../components/header/header.component';
+import { PageSkeletonComponent } from '../../components/page-skeleton/page-skeleton.component';
 import { PageStatusComponent } from '../../components/page-status/page-status.component';
 import { ChartItem } from '../../models/chart-item.model';
 import { Indicator } from '../../models/indicator.model';
@@ -20,7 +21,7 @@ type DashboardView =
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [AsyncPipe, HeaderComponent, ChartComponent, PageStatusComponent],
+  imports: [AsyncPipe, HeaderComponent, ChartComponent, PageSkeletonComponent, PageStatusComponent],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss'
 })
