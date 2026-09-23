@@ -1,0 +1,23 @@
+<p class="visually-hidden" role="status">Loading…</p>
+<div class="grid" aria-hidden="true">
+  <div class="header">
+    <div class="skeleton title"></div>
+    <div class="cards">
+      @for (index of cardIndexes; track index) {
+        <div class="skeleton card"></div>
+      }
+    </div>
+  </div>
+  @if (intro) {
+    <div class="skeleton text grid-main"></div>
+  }
+  <div class="grid-main">
+    @if (caption) {
+      <div class="skeleton caption"></div>
+    }
+    <div class="skeleton chart"></div>
+  </div>
+  @if (backButton) {
+    <div class="skeleton back-button"></div>
+  }
+</div>

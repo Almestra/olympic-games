@@ -5,6 +5,8 @@
       <app-chart class="grid-main" type="line" showDescription [items]="view.chartItems" description="Medals per edition" />
       <a class="button back" routerLink="/">Back to dashboard</a>
     </div>
+  } @else if (view.state === 'loading') {
+    <app-page-skeleton [cards]="3" caption backButton />
   } @else {
     <app-page-status [state]="view.state" backLink />
   }

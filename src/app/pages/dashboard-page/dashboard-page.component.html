@@ -9,6 +9,8 @@
       <app-chart class="grid-main" type="bar" multicolor [items]="view.chartItems" description="Total medals per country"
         (itemClick)="openCountry($event)" />
     </div>
+  } @else if (view.state === 'loading') {
+    <app-page-skeleton [cards]="2" intro />
   } @else {
     <app-page-status [state]="view.state" />
   }

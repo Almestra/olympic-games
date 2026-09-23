@@ -3,10 +3,9 @@ import { RouterLink } from '@angular/router';
 
 import { PageState } from '../../models/page-state.model';
 
-type Status = Exclude<PageState, 'loaded'>;
+type Status = Exclude<PageState, 'loading' | 'loaded'>;
 
 const MESSAGES: Record<Status, string> = {
-  loading: 'Loading…',
   empty: 'No data available.',
   error: 'Unable to load the data. Please try again later.'
 };
@@ -18,7 +17,7 @@ const MESSAGES: Record<Status, string> = {
   templateUrl: './page-status.component.html'
 })
 export class PageStatusComponent {
-  @Input({ required: true }) state: Status = 'loading';
+  @Input({ required: true }) state: Status = 'error';
   @Input() message = '';
   @Input({ transform: booleanAttribute }) backLink = false;
 
