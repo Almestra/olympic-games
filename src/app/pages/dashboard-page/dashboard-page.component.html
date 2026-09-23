@@ -6,8 +6,8 @@
         Summer Olympic Games from {{ view.period.start }} to {{ view.period.end }}.
         Click a country's bar to see its details.
       </p>
-      <app-chart class="grid-main" type="bar" multicolor [items]="view.chartItems" description="Total medals per country"
-        (itemClick)="openCountry($event)" />
+      <app-chart class="grid-main" type="bar" multicolor unit="medals" [items]="view.chartItems"
+        description="Total medals per country" (itemClick)="openCountry($event)" />
     </div>
   } @else if (view.state === 'loading') {
     <app-page-skeleton [cards]="2" intro />

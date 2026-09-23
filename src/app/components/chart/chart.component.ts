@@ -75,6 +75,7 @@ export class ChartComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input({ required: true }) type: 'bar' | 'line' = 'bar';
   @Input({ required: true }) items: ChartItem[] = [];
   @Input({ required: true }) description = '';
+  @Input() unit = '';
   @Input({ transform: booleanAttribute }) showDescription = false;
   @Input({ transform: booleanAttribute }) multicolor = false;
   @Output() itemClick = new EventEmitter<number>();
@@ -130,6 +131,18 @@ export class ChartComponent implements AfterViewInit, OnChanges, OnDestroy {
         indexAxis: isBar ? 'y' : 'x',
         layout: { padding: { top: isBar ? 8 : 0 } },
         maintainAspectRatio: false,
+        plugins: {
+          tooltip: {
+            displayColors: false,
+            cornerRadius: 8,
+            padding: { x: 16, y: 8 },
+            callbacks: {
+              // The country and the year are already written on the chart
+              title: () => [],
+              label: (context) => (this.unit ? `${context.formattedValue} ${this.unit}` : context.formattedValue)
+            }
+          }
+        },
         scales: {
           x: { beginAtZero: true },
           y: {
