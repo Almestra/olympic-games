@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, map, shareReplay } from 'rxjs';
+import { BehaviorSubject, Observable, map } from 'rxjs';
 
 import { environment } from '../../environments/environment';
+import { LoadState } from '../models/load-state.model';
 import { Olympic } from '../models/olympic.model';
 import { Period } from '../models/period.model';
 
@@ -10,22 +11,32 @@ import { Period } from '../models/period.model';
   providedIn: 'root'
 })
 export class DataService {
-  private readonly olympics$: Observable<Olympic[]> = this.http
-    .get<Olympic[]>(environment.dataUrl)
-    .pipe(
-      map((olympics) => [...olympics].sort((a, b) => this.countMedals(b) - this.countMedals(a))),
-      shareReplay(1),
-    );
+  // Holds the current state and gives it at once to every new subscriber
+  private readonly state$ = new BehaviorSubject<LoadState<Olympic[]>>({ status: 'loading' });
 
-  constructor(private readonly http: HttpClient) { }
-
-  getOlympics(): Observable<Olympic[]> {
-    return this.olympics$;
+  constructor(private readonly http: HttpClient) {
+    this.load();
   }
 
-  getOlympicById(id: number): Observable<Olympic | undefined> {
-    return this.olympics$.pipe(
-      map((olympics) => olympics.find((olympic) => olympic.id === id)),
+  getOlympics(): Observable<LoadState<Olympic[]>> {
+    // Retry if the previous download failed
+    if (this.state$.value.status === 'error') {
+      this.load();
+    }
+    // Read-only access: components cannot call next()
+    return this.state$.asObservable();
+  }
+
+  getOlympicById(id: number): Observable<LoadState<Olympic | undefined>> {
+    return this.getOlympics().pipe(
+      map((state) => {
+        // Loading or failed: nothing to search yet
+        if (state.status !== 'loaded') {
+          return state;
+        }
+        // Keep only the matching country (undefined if the id is unknown)
+        return { status: 'loaded', data: state.data.find((olympic) => olympic.id === id) };
+      }),
     );
   }
 
@@ -51,5 +62,19 @@ export class DataService {
 
   private getYears(olympics: Olympic[]): number[] {
     return olympics.flatMap((olympic) => olympic.participations.map((participation) => participation.year));
+  }
+
+  private load(): void {
+    this.state$.next({ status: 'loading' });
+    this.http
+      .get<Olympic[]>(environment.dataUrl)
+      .pipe(
+        map((olympics) => [...olympics].sort((a, b) => this.countMedals(b) - this.countMedals(a))),
+      )
+      .subscribe({
+        next: (olympics) => this.state$.next({ status: 'loaded', data: olympics }),
+        // Never call state$.error(): a subject that received an error stays dead
+        error: () => this.state$.next({ status: 'error' }),
+      });
   }
 }

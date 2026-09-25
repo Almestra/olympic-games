@@ -1,7 +1,7 @@
 import { AsyncPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, catchError, map, of, startWith } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 import { ChartComponent } from '../../components/chart/chart.component';
 import { HeaderComponent } from '../../components/header/header.component';
@@ -28,9 +28,12 @@ type DashboardView =
 export class DashboardPageComponent {
   readonly title = 'Medals per Country';
   readonly view$: Observable<DashboardView> = this.dataService.getOlympics().pipe(
-    map((olympics) => this.toView(olympics)),
-    startWith<DashboardView>({ state: 'loading' }),
-    catchError(() => of<DashboardView>({ state: 'error' }))
+    map((olympics): DashboardView => {
+      if (olympics.status !== 'loaded') {
+        return { state: olympics.status };
+      }
+      return this.toView(olympics.data);
+    })
   );
 
   constructor(

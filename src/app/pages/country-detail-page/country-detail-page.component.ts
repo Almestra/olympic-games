@@ -1,7 +1,7 @@
 import { AsyncPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Observable, catchError, filter, map, of, startWith, switchMap, tap } from 'rxjs';
+import { Observable, filter, map, switchMap, tap } from 'rxjs';
 
 import { ChartComponent } from '../../components/chart/chart.component';
 import { HeaderComponent } from '../../components/header/header.component';
@@ -28,16 +28,22 @@ export class CountryDetailPageComponent {
   readonly view$: Observable<CountryDetailView> = this.route.paramMap.pipe(
     map((params) => Number(params.get('id'))),
     switchMap((id) => this.dataService.getOlympicById(id).pipe(
+      map((olympic): CountryDetailView | undefined => {
+        if (olympic.status !== 'loaded') {
+          return { state: olympic.status };
+        }
+        if (!olympic.data) {
+          return undefined;
+        }
+        return this.toView(olympic.data);
+      }),
       // Unknown or invalid id: show the not-found page, keeping the typed URL
-      tap((olympic) => {
-        if (!olympic) {
+      tap((view) => {
+        if (!view) {
           this.router.navigate(['/not-found'], { skipLocationChange: true });
         }
       }),
-      filter((olympic): olympic is Olympic => olympic !== undefined),
-      map((olympic) => this.toView(olympic)),
-      startWith<CountryDetailView>({ state: 'loading' }),
-      catchError(() => of<CountryDetailView>({ state: 'error' }))
+      filter((view): view is CountryDetailView => view !== undefined)
     ))
   );
 
