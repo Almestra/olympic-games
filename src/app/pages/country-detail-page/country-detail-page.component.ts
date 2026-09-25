@@ -10,12 +10,10 @@ import { PageStatusComponent } from '../../components/page-status/page-status.co
 import { ChartItem } from '../../models/chart-item.model';
 import { Indicator } from '../../models/indicator.model';
 import { Olympic } from '../../models/olympic.model';
-import { PageState } from '../../models/page-state.model';
+import { State } from '../../models/state.model';
 import { DataService } from '../../services/data.service';
 
-type CountryDetailView =
-  | { state: Exclude<PageState, 'loaded'> }
-  | { state: 'loaded'; title: string; indicators: Indicator[]; chartItems: ChartItem[] };
+type CountryDetailView = State<{ title: string; indicators: Indicator[]; chartItems: ChartItem[] }>;
 
 @Component({
   selector: 'app-country-detail-page',
@@ -28,14 +26,14 @@ export class CountryDetailPageComponent {
   readonly view$: Observable<CountryDetailView> = this.route.paramMap.pipe(
     map((params) => Number(params.get('id'))),
     switchMap((id) => this.dataService.getOlympicById(id).pipe(
-      map((olympic): CountryDetailView | undefined => {
-        if (olympic.status !== 'loaded') {
-          return { state: olympic.status };
+      map((result): CountryDetailView | undefined => {
+        if (result.state !== 'loaded') {
+          return { state: result.state };
         }
-        if (!olympic.data) {
+        if (!result.olympic) {
           return undefined;
         }
-        return this.toView(olympic.data);
+        return this.toView(result.olympic);
       }),
       // Unknown or invalid id: show the not-found page, keeping the typed URL
       tap((view) => {

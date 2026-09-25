@@ -10,13 +10,11 @@ import { PageStatusComponent } from '../../components/page-status/page-status.co
 import { ChartItem } from '../../models/chart-item.model';
 import { Indicator } from '../../models/indicator.model';
 import { Olympic } from '../../models/olympic.model';
-import { PageState } from '../../models/page-state.model';
 import { Period } from '../../models/period.model';
+import { State } from '../../models/state.model';
 import { DataService } from '../../services/data.service';
 
-type DashboardView =
-  | { state: Exclude<PageState, 'loaded'> }
-  | { state: 'loaded'; period: Period; indicators: Indicator[]; chartItems: ChartItem[] };
+type DashboardView = State<{ period: Period; indicators: Indicator[]; chartItems: ChartItem[] }>;
 
 @Component({
   selector: 'app-dashboard-page',
@@ -28,11 +26,11 @@ type DashboardView =
 export class DashboardPageComponent {
   readonly title = 'Medals per Country';
   readonly view$: Observable<DashboardView> = this.dataService.getOlympics().pipe(
-    map((olympics): DashboardView => {
-      if (olympics.status !== 'loaded') {
-        return { state: olympics.status };
+    map((result): DashboardView => {
+      if (result.state !== 'loaded') {
+        return { state: result.state };
       }
-      return this.toView(olympics.data);
+      return this.toView(result.olympics);
     })
   );
 

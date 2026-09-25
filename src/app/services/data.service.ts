@@ -3,39 +3,42 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 
 import { environment } from '../../environments/environment';
-import { LoadState } from '../models/load-state.model';
 import { Olympic } from '../models/olympic.model';
 import { Period } from '../models/period.model';
+import { State } from '../models/state.model';
+
+// The service never decides that the data is empty: each page does
+type DataState<T> = Exclude<State<T>, { state: 'empty' }>;
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
   // Holds the current state and gives it at once to every new subscriber
-  private readonly state$ = new BehaviorSubject<LoadState<Olympic[]>>({ status: 'loading' });
+  private readonly olympics$ = new BehaviorSubject<DataState<{ olympics: Olympic[] }>>({ state: 'loading' });
 
   constructor(private readonly http: HttpClient) {
     this.load();
   }
 
-  getOlympics(): Observable<LoadState<Olympic[]>> {
+  getOlympics(): Observable<DataState<{ olympics: Olympic[] }>> {
     // Retry if the previous download failed
-    if (this.state$.value.status === 'error') {
+    if (this.olympics$.value.state === 'error') {
       this.load();
     }
     // Read-only access: components cannot call next()
-    return this.state$.asObservable();
+    return this.olympics$.asObservable();
   }
 
-  getOlympicById(id: number): Observable<LoadState<Olympic | undefined>> {
+  getOlympicById(id: number): Observable<DataState<{ olympic: Olympic | undefined }>> {
     return this.getOlympics().pipe(
-      map((state) => {
+      map((result) => {
         // Loading or failed: nothing to search yet
-        if (state.status !== 'loaded') {
-          return state;
+        if (result.state !== 'loaded') {
+          return result;
         }
         // Keep only the matching country (undefined if the id is unknown)
-        return { status: 'loaded', data: state.data.find((olympic) => olympic.id === id) };
+        return { state: 'loaded', olympic: result.olympics.find((olympic) => olympic.id === id) };
       }),
     );
   }
@@ -65,16 +68,16 @@ export class DataService {
   }
 
   private load(): void {
-    this.state$.next({ status: 'loading' });
+    this.olympics$.next({ state: 'loading' });
     this.http
       .get<Olympic[]>(environment.dataUrl)
       .pipe(
         map((olympics) => [...olympics].sort((a, b) => this.countMedals(b) - this.countMedals(a))),
       )
       .subscribe({
-        next: (olympics) => this.state$.next({ status: 'loaded', data: olympics }),
-        // Never call state$.error(): a subject that received an error stays dead
-        error: () => this.state$.next({ status: 'error' }),
+        next: (olympics) => this.olympics$.next({ state: 'loaded', olympics: olympics }),
+        // Never call olympics$.error(): a subject that received an error stays dead
+        error: () => this.olympics$.next({ state: 'error' }),
       });
   }
 }
