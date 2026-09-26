@@ -1,4 +1,4 @@
-@if (view$ | async; as view) {
+@if (view(); as view) {
   @if (view.state === 'loaded') {
     <div class="grid">
       <app-header [title]="title" [indicators]="view.indicators" />

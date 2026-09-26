@@ -1,7 +1,7 @@
-import { AsyncPipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, computed, effect } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Observable, catchError, filter, map, of, startWith, switchMap, tap } from 'rxjs';
+import { map } from 'rxjs';
 
 import { ChartComponent } from '../../components/chart/chart.component';
 import { HeaderComponent } from '../../components/header/header.component';
@@ -10,42 +10,49 @@ import { PageStatusComponent } from '../../components/page-status/page-status.co
 import { ChartItem } from '../../models/chart-item.model';
 import { Indicator } from '../../models/indicator.model';
 import { Olympic } from '../../models/olympic.model';
-import { PageState } from '../../models/page-state.model';
+import { State } from '../../models/state.model';
 import { DataService } from '../../services/data.service';
 
-type CountryDetailView =
-  | { state: Exclude<PageState, 'loaded'> }
-  | { state: 'loaded'; title: string; indicators: Indicator[]; chartItems: ChartItem[] };
+type CountryDetailView = State<{ title: string; indicators: Indicator[]; chartItems: ChartItem[] }>;
 
 @Component({
   selector: 'app-country-detail-page',
   standalone: true,
-  imports: [AsyncPipe, RouterLink, HeaderComponent, ChartComponent, PageSkeletonComponent, PageStatusComponent],
+  imports: [RouterLink, HeaderComponent, ChartComponent, PageSkeletonComponent, PageStatusComponent],
   templateUrl: './country-detail-page.component.html',
   styleUrl: './country-detail-page.component.scss'
 })
 export class CountryDetailPageComponent {
-  readonly view$: Observable<CountryDetailView> = this.route.paramMap.pipe(
-    map((params) => Number(params.get('id'))),
-    switchMap((id) => this.dataService.getOlympicById(id).pipe(
-      // Unknown or invalid id: show the not-found page, keeping the typed URL
-      tap((olympic) => {
-        if (!olympic) {
-          this.router.navigate(['/not-found'], { skipLocationChange: true });
-        }
-      }),
-      filter((olympic): olympic is Olympic => olympic !== undefined),
-      map((olympic) => this.toView(olympic)),
-      startWith<CountryDetailView>({ state: 'loading' }),
-      catchError(() => of<CountryDetailView>({ state: 'error' }))
-    ))
+  // The id from the URL, as a signal that follows URL changes
+  private readonly id = toSignal(
+    this.route.paramMap.pipe(map((params) => Number(params.get('id')))),
+    { requireSync: true }
   );
+  private readonly olympic = this.dataService.getOlympicById(this.id);
+  // undefined means an unknown or invalid id (handled by the effect below)
+  readonly view = computed<CountryDetailView | undefined>(() => {
+    const result = this.olympic();
+    if (result.state !== 'loaded') {
+      return { state: result.state };
+    }
+    if (!result.olympic) {
+      return undefined;
+    }
+    return this.toView(result.olympic);
+  });
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly dataService: DataService
-  ) { }
+  ) {
+    // Unknown or invalid id: show the not-found page, keeping the typed URL
+    effect(() => {
+      if (!this.view()) {
+        this.router.navigate(['/not-found'], { skipLocationChange: true });
+      }
+    });
+  }
 
   private toView(olympic: Olympic): CountryDetailView {
     if (olympic.participations.length === 0) {

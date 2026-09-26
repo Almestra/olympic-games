@@ -1,9 +1,9 @@
 import { booleanAttribute, Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { PageState } from '../../models/page-state.model';
+import { State } from '../../models/state.model';
 
-type Status = Exclude<PageState, 'loading' | 'loaded'>;
+type Status = Exclude<State<unknown>['state'], 'loading' | 'loaded'>;
 
 const MESSAGES: Record<Status, string> = {
   empty: 'No data available.',

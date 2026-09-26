@@ -1,7 +1,5 @@
-import { AsyncPipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, computed } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, catchError, map, of, startWith } from 'rxjs';
 
 import { ChartComponent } from '../../components/chart/chart.component';
 import { HeaderComponent } from '../../components/header/header.component';
@@ -10,28 +8,31 @@ import { PageStatusComponent } from '../../components/page-status/page-status.co
 import { ChartItem } from '../../models/chart-item.model';
 import { Indicator } from '../../models/indicator.model';
 import { Olympic } from '../../models/olympic.model';
-import { PageState } from '../../models/page-state.model';
 import { Period } from '../../models/period.model';
+import { State } from '../../models/state.model';
 import { DataService } from '../../services/data.service';
 
-type DashboardView =
-  | { state: Exclude<PageState, 'loaded'> }
-  | { state: 'loaded'; period: Period; indicators: Indicator[]; chartItems: ChartItem[] };
+type DashboardView = State<{ period: Period; indicators: Indicator[]; chartItems: ChartItem[] }>;
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [AsyncPipe, HeaderComponent, ChartComponent, PageSkeletonComponent, PageStatusComponent],
+  imports: [HeaderComponent, ChartComponent, PageSkeletonComponent, PageStatusComponent],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss'
 })
 export class DashboardPageComponent {
   readonly title = 'Medals per Country';
-  readonly view$: Observable<DashboardView> = this.dataService.getOlympics().pipe(
-    map((olympics) => this.toView(olympics)),
-    startWith<DashboardView>({ state: 'loading' }),
-    catchError(() => of<DashboardView>({ state: 'error' }))
-  );
+  // Read once here, not inside computed(): getOlympics() may start a download
+  private readonly olympics = this.dataService.getOlympics();
+  // Recomputed automatically each time the olympics state changes
+  readonly view = computed<DashboardView>(() => {
+    const result = this.olympics();
+    if (result.state !== 'loaded') {
+      return { state: result.state };
+    }
+    return this.toView(result.olympics);
+  });
 
   constructor(
     private readonly router: Router,
